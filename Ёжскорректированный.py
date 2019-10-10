@@ -3,7 +3,7 @@ import math
 
 graph.canvasSize(1000, 700)
 def trg(x, y, f):
-    x3 = X + ((x - 400) * math.cos(F / 57.296) - (y - 450) * math.sin(F / 57.296))*Size
+    x3 = X + ((x - 400) * math.cos(F / 57.296) - (y - 450) * math.sin(F / 57.296))*Size        # F, f - углы поворота ежа и эллипса
     y = Y + ((x - 400) * math.sin(F / 57.296) + (y - 450) * math.cos(F / 57.296))*Size
     x = x3
     f -= F
