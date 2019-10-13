@@ -1,5 +1,5 @@
-import graph
 import math
+import graph
 
 graph.canvasSize(1000, 700)
 def trg(x, y, f):
