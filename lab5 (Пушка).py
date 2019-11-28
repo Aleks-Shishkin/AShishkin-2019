@@ -2,6 +2,7 @@ import tkinter as tk
 import time
 import math
 from random import randrange as rnd, choice
+import itertools
 
 
 root = tk.Tk()
@@ -59,13 +60,49 @@ class ball():
             canv.delete(self.id)
             balls.remove(self)
 
+class hex():
+    def __init__(self, x, y, r, vy):
+        self.x = x
+        self.y = y
+        self.vy = vy
+        self.r = r
+        self.color = choice(['blue', 'green', 'red', 'yellow', 'grey'])
+        self.id = canv.create_polygon(
+            (self.x + self.r, self.y),
+            (self.x + 0.5 * self.r, self.y + 0.87 * self.r),
+            (self.x - 0.5 * self.r, self.y + 0.87 * self.r),
+            (self.x - self.r, self.y),
+            (self.x - 0.5 * self.r, self.y - 0.87 * self.r),
+            (self.x + 0.5 * self.r, self.y - 0.87 * self.r),
+            fill=self.color
+        )
+
+    def get_coords(self):
+        def flatten(list_of_lists):
+            return itertools.chain.from_iterable(list_of_lists)
+        new_coords = [
+            (self.x + self.r, self.y),
+            (self.x + 0.5 * self.r, self.y + 0.87 * self.r),
+            (self.x - 0.5 * self.r, self.y + 0.87 * self.r),
+            (self.x - self.r, self.y),
+            (self.x - 0.5 * self.r, self.y - 0.87 * self.r),
+            (self.x + 0.5 * self.r, self.y - 0.87 * self.r)
+        ]
+        canv.coords(self.id, *flatten(new_coords))
+
+    def move(self):
+        self.y -= self.vy
+        self.get_coords()
+        canv.itemconfig(self.id, fill=self.color)
+        if self.y > 600 or self.y < 0:
+            canv.delete(self.id)
 
 class mortira():
     def __init__ (self):
         self.power = 50
         self.on = 0
         self.ang = 0
-        self.id = canv.create_line(30,400,80,400,width = 20) 
+        self.id = canv.create_line(30, 400, 80, 400, width=20)
 
     def fire_start(self, event):
         self.on = 1
@@ -134,18 +171,18 @@ class target():
         self.points += points
         canv.itemconfig(self.id_points, text=self.points)
 
-
 t3 = target()
 screen3 = canv.create_text(400, 300, text='', font='28')
 m1 = mortira()
 fire = 0
 balls = []
-
+h1 = hex(0, 0, 0, 0)
+h2 = hex(0, 0, 0, 0)
 
 def new_game(event=''):
-    global mortira, t1, screen1, balls, fire
+    global mortira, t1, screen1, balls, fire, h1, h2
     t3.new_target()
-    bullet = 0
+    fire = 0
     balls = []
     canv.bind('<Button-1>', m1.fire_start)
     canv.bind('<ButtonRelease-1>', m1.fire_end)
@@ -155,10 +192,14 @@ def new_game(event=''):
             b.move()
             if b.hittest(t3) and t3.live:
                 t3.live = 0
+                h1 = hex(t3.x, t3.y, t3.r, 20)
+                h2 = hex(t3.x, t3.y, t3.r, -20)
                 t3.hit()
                 canv.bind('<Button-1>', '')
                 canv.bind('<ButtonRelease-1>', '')
                 canv.itemconfig(screen3, text='Количество выстрелов для уничтожения: ' + str(fire))
+            h1.move()
+            h2.move()
         canv.update()
         time.sleep(0.04)
         m1.targetting()
